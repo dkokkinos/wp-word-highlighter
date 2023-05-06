@@ -2,9 +2,9 @@
 
 /*
 
-Plugin Name: Highlight Words in a Blog Post
+Plugin Name: Highlight sp-important-word Words in a Blog Post
 Plugin URI: https://softwareparticles.com
-Description: Highlights words in a blog post.
+Description: Highlights words in a blog post and add sp-important-word in class
 Version: 1.0.0
 Author: Dimitris Kokkinos
 Author URI: https://softwareparticles.com
@@ -148,47 +148,60 @@ function hct_plugin_options_page() {
 
 // Define the words to replace
 
-$words_to_replace = array(
-    'composite pattern' => 'https://softwareparticles/design-patterns-composite',
-    'asdasdasd' => 'https://example.com/essential-page',
-    'without a link' => 'https://softwareparticles.com/?p=2566&preview=true',
-    'state design pattern' => 'https://softwareparticles.com/design-patterns-state/',
-    'tree like structure' => ''
-);
 
 // Define the callback function to replace the words
 function highlight_code_tokens($content) {
-    global $words_to_replace;
+    
+    if ( !is_single() ) 
+        return $content;
+    
+$words_to_replace = array(
+    'Composite Pattern' => 'https://softwareparticles/design-patterns-composite',
+    'Composite Design Pattern' => 'https://softwareparticles/design-patterns-composite',
+    'Autofac' => ''
+);
 
-    // Check if the current post is not the same as the link URL
-    $current_url = get_permalink(); // Get the URL of the current post
-    $current_url_host = parse_url($current_url, PHP_URL_HOST); // Get the host name of the current URL
+// Use DOMDocument to parse the post content
+$dom = new DOMDocument();
+$dom->loadHTML($content);
 
-    // Loop through the words to replace
-    foreach ($words_to_replace as $word => $link) {
+// Loop through each word in the array
+foreach ($words_to_replace as $word => $url) {
+  // Use XPath to find all text nodes containing the word inside p elements, excluding those that are already contained in a span with class sp-important-word
+  $xpath = new DOMXPath($dom);
+  $nodes = $xpath->query("//p//text()[contains(., '$word') and not(ancestor::span[contains(@class,'sp-important-word')])]");
+  
+  //echo "//p//text()[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '$word') and not(ancestor::span[contains(@class,'sp-important-word')])]";
 
-        $regex = '/(?<!<span class="sp-important-word">)\b(' . preg_quote($word) . ')\b(?!<\/span>)/i'; // Create a regex pattern to match the word with word boundary and exclude the word already inside a span with class "sp-important-word"
-
-        if (!empty($link)) {
-
-            $link_host = parse_url($link, PHP_URL_HOST); // Get the host name of the link URL
-
-            if ($current_url_host != $link_host) {
-                // Replace the word with a span element with class "sp-important-word" and link
-                $content = preg_replace($regex, '<span class="sp-important-word"><a href="' . esc_url($link) . '">$1</a></span>', $content);
-            } else {
-
-                // Replace the word with a span element with class "sp-important-word" without link
-                $content = preg_replace($regex, '<span class="sp-important-word">$1</span>', $content);
-            }
-        } else {
-
-            // Replace the word with a span element with class "sp-important-word" without link
-            $content = preg_replace($regex, '<span class="sp-important-word">$1</span>', $content);
-        }
+  // Loop through each text node and replace all occurrences of the word with a span element containing a link to the URL
+  foreach ($nodes as $node) {
+    $split = explode($word, $node->nodeValue);
+    $new_node = $dom->createDocumentFragment();
+    $new_node->appendChild($dom->createTextNode($split[0]));
+    for ($i = 1; $i < count($split); $i++) {
+      $span = $dom->createElement('span');
+      $span->setAttribute('class', 'sp-important-word');
+      if ($url >  0)
+      { 
+        $a = $dom->createElement('a');
+        $a->setAttribute('href', $url);
+        $a->nodeValue = $word;
+        $span->appendChild($a);
+      }else 
+      {
+        $span->nodeValue = $word;
+      }
+      $new_node->appendChild($span);
+      $new_node->appendChild($dom->createTextNode($split[$i]));
     }
+    $node->parentNode->replaceChild($new_node, $node);
+  }
+}
 
-    return $content;
+// Get the updated post content
+$updated_content = $dom->saveHTML();
+  // Return the updated post content
+  return $updated_content;
 }
 
 add_filter( 'the_content', 'highlight_code_tokens' );
