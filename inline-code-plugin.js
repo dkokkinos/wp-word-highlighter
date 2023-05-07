@@ -36,10 +36,8 @@
   }
 
   function addInlineToTextNode(node) {
-    var parentNode = node.parentNode;
-
     // break the node text into 3 parts: part1 - before the selected text, part2- the text to highlight, and part3 - the text after the highlight
-    var s = node.nodeValue;
+    let s = node.nodeValue;
 
     let match = regex.exec(s);
     regex.lastIndex = 0;  // Reset
@@ -57,6 +55,8 @@
     let part3 = s.substring(endIndex);
 
     // replace the text node with the new nodes
+    let parentNode = node.parentNode;
+
     let textNode = document.createTextNode(part1);
     parentNode.replaceChild(textNode, node);
 

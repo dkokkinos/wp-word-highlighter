@@ -17,12 +17,14 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 // Register the options page
 add_action('admin_menu', 'hct_plugin_menu');
 
-function hct_plugin_menu() {
+function hct_plugin_menu()
+{
     add_options_page('Highlight Words in Posts Options', 'Highlight Words', 'manage_options', 'hct-plugin', 'hct_plugin_options_page');
 }
 
 // Create the options page
-function hct_plugin_options_page() {
+function hct_plugin_options_page()
+{
     if (!current_user_can('manage_options')) {
         wp_die(__('You do not have sufficient permissions to access this page.'));
     }
@@ -43,12 +45,11 @@ function hct_plugin_options_page() {
     } else {
         // Retrieve the saved options
         $words_to_replace = get_option('hct_plugin_words_to_replace');
-
     }
 
     // Output the options form
 
-    ?>
+?>
     <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
@@ -82,9 +83,9 @@ function hct_plugin_options_page() {
 
     </div>
 
-    <br/>
+    <br />
 
-	<br/>
+    <br />
 
     <div class="wrap">
 
@@ -110,7 +111,7 @@ function hct_plugin_options_page() {
 
                     <?php endforeach; ?>
 
-                    
+
 
                     <!-- Add new input field for a word and its corresponding link -->
 
@@ -140,7 +141,7 @@ function hct_plugin_options_page() {
 
     </div>
 
-    <?php
+<?php
 
 }
 
@@ -150,58 +151,54 @@ function hct_plugin_options_page() {
 
 
 // Define the callback function to replace the words
-function highlight_code_tokens($content) {
-    
-    if ( !is_single() ) 
+function sp_highlight_words($content)
+{
+    if (!is_single())
         return $content;
-    
-$words_to_replace = array(
-    'Composite Pattern' => 'https://softwareparticles/design-patterns-composite',
-    'Composite Design Pattern' => 'https://softwareparticles/design-patterns-composite',
-    'Autofac' => ''
-);
 
-// Use DOMDocument to parse the post content
-$dom = new DOMDocument();
-$dom->loadHTML($content);
+    $words_to_replace = array(
+        'Composite Pattern' => 'https://softwareparticles/design-patterns-composite',
+        'Composite Design Pattern' => 'https://softwareparticles/design-patterns-composite',
+        'WordPress' => ''
+    );
 
-// Loop through each word in the array
-foreach ($words_to_replace as $word => $url) {
-  // Use XPath to find all text nodes containing the word inside p elements, excluding those that are already contained in a span with class sp-important-word
-  $xpath = new DOMXPath($dom);
-  $nodes = $xpath->query("//p//text()[contains(., '$word') and not(ancestor::span[contains(@class,'sp-important-word')])]");
-  
-  //echo "//p//text()[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '$word') and not(ancestor::span[contains(@class,'sp-important-word')])]";
+    // Use DOMDocument to parse the post content
+    $dom = new DOMDocument();
+    $dom->loadHTML($content);
 
-  // Loop through each text node and replace all occurrences of the word with a span element containing a link to the URL
-  foreach ($nodes as $node) {
-    $split = explode($word, $node->nodeValue);
-    $new_node = $dom->createDocumentFragment();
-    $new_node->appendChild($dom->createTextNode($split[0]));
-    for ($i = 1; $i < count($split); $i++) {
-      $span = $dom->createElement('span');
-      $span->setAttribute('class', 'sp-important-word');
-      if ($url >  0)
-      { 
-        $a = $dom->createElement('a');
-        $a->setAttribute('href', $url);
-        $a->nodeValue = $word;
-        $span->appendChild($a);
-      }else 
-      {
-        $span->nodeValue = $word;
-      }
-      $new_node->appendChild($span);
-      $new_node->appendChild($dom->createTextNode($split[$i]));
+    // Loop through each word in the array
+    foreach ($words_to_replace as $word => $url) {
+        // Use XPath to find all text nodes containing the word inside p elements, excluding those that are already contained in a span with class sp-important-word
+        $xpath = new DOMXPath($dom);
+        $nodes = $xpath->query("//p//text()[contains(., '$word') and not(ancestor::span[contains(@class,'sp-important-word')])]");
+
+        // Loop through each text node and replace all occurrences of the word with a span element containing a link to the URL
+        foreach ($nodes as $node) {
+            $split = explode($word, $node->nodeValue);
+            $new_node = $dom->createDocumentFragment();
+            $new_node->appendChild($dom->createTextNode($split[0]));
+            for ($i = 1; $i < count($split); $i++) {
+                $span = $dom->createElement('span');
+                $span->setAttribute('class', 'sp-important-word');
+                if ($url >  0) {
+                    $a = $dom->createElement('a');
+                    $a->setAttribute('href', $url);
+                    $a->nodeValue = $word;
+                    $span->appendChild($a);
+                } else {
+                    $span->nodeValue = $word;
+                }
+                $new_node->appendChild($span);
+                $new_node->appendChild($dom->createTextNode($split[$i]));
+            }
+            $node->parentNode->replaceChild($new_node, $node);
+        }
     }
-    $node->parentNode->replaceChild($new_node, $node);
-  }
+
+    // Get the updated post content
+    $updated_content = $dom->saveHTML();
+    // Return the updated post content
+    return $updated_content;
 }
 
-// Get the updated post content
-$updated_content = $dom->saveHTML();
-  // Return the updated post content
-  return $updated_content;
-}
-
-add_filter( 'the_content', 'highlight_code_tokens' );
+add_filter('the_content', 'sp_highlight_words');
