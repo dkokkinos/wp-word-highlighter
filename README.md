@@ -1,2 +1,2 @@
 # wp-word-highlighter
-wordpress plugin for highliligting words in a posts and pages
+wordpress plugin for highliligting words in posts and pages
