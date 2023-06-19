@@ -159,9 +159,13 @@ function sp_highlight_words($content)
     $words_to_replace = array(
         'Composite Pattern' => 'https://softwareparticles/design-patterns-composite',
         'Composite Design Pattern' => 'https://softwareparticles/design-patterns-composite',
+        'Visitor Pattern' => 'https://softwareparticles/design-patterns-visitor',
+        'Visitor Design Pattern' => 'https://softwareparticles/design-patterns-visitor',
         'FileZilla' => 'https://filezilla-project.org/',
         '.NET Compiler Platform SDK' => 'https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/',
         'Microsoft.CodeAnalysis.Common' => 'https://www.nuget.org/packages/Microsoft.CodeAnalysis.Common/',
+        'Power Fx' => 'https://github.com/microsoft/Power-Fx',
+        'Object-Oriented Programming' => 'https://en.wikipedia.org/wiki/Object-oriented_programming',
         'PHP' => '',
         'JavaScript' => '',
         'XPath' => '',
