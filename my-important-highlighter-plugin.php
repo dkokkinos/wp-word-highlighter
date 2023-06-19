@@ -159,6 +159,13 @@ function sp_highlight_words($content)
     $words_to_replace = array(
         'Composite Pattern' => 'https://softwareparticles/design-patterns-composite',
         'Composite Design Pattern' => 'https://softwareparticles/design-patterns-composite',
+        'FileZilla' => 'https://filezilla-project.org/',
+        '.NET Compiler Platform SDK' => 'https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/',
+        'Microsoft.CodeAnalysis.Common' => 'https://www.nuget.org/packages/Microsoft.CodeAnalysis.Common/',
+        'PHP' => '',
+        'JavaScript' => '',
+        'XPath' => '',
+        'HTML' => '',
         'WordPress' => ''
     );
 
