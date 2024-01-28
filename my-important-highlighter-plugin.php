@@ -182,6 +182,7 @@ function sp_highlight_words($content)
         'Microsoft.CodeAnalysis.Common' => 'https://www.nuget.org/packages/Microsoft.CodeAnalysis.Common/',
         'Power Fx' => 'https://github.com/microsoft/Power-Fx',
         'Object-Oriented Programming' => 'https://en.wikipedia.org/wiki/Object-oriented_programming',
+        '74HC595' => 'https://softwareparticles.com/use-74hc595-shift-register-with-arduino/',
         'NuGet Package Manager' => 'https://www.nuget.org',
         'PHP' => '',
         'JavaScript' => '',
